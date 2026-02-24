@@ -11,3 +11,59 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+
+:root {
+  /* LIGHT THEME */
+  --bg-gradient: linear-gradient(90deg, purple, pink);
+  --card-bg: #ffffff;
+  --text-color: #000000;       /* text inside box */
+  --accent-color: #a100a8;     /* highlights / details */
+  --logo-color: #a100a8;       /* title and logo text */
+  --button-gradient: linear-gradient(to right, #8e2de2, #ff6a95);
+  --box-border: #000000;        /* dashed box border in light mode */
+  --option-bg: #f3f3f3;
+  --option-border: #e5e5e5;
+  --option-active-bg: #e9c6ff;
+  --option-active-border: #7a017a;
+}
+
+.dark {
+  /* DARK THEME */
+  --bg-gradient: linear-gradient(135deg, #200122, #3a1c2b);
+  --card-bg: #2b1b1b;
+  --text-color: #ffffff;       /* text inside box */
+  --accent-color: #ff00cc;     /* highlights / details */
+  --logo-color: #ff00cc;       /* title and logo text */
+  /* --button-gradient: linear-gradient(to right, #a100a8, #ffb6c1); */
+  --bg-gradient: #121212;   /* Full dark background */
+
+  --box-border: #ffffff;       /* dashed box border in dark mode */
+
+  --option-bg: #3a2a2a;
+  --option-border: #141414;
+  --option-active-bg: #000000;   /* NO pink */
+  --option-active-border: #0a0a0a;
+   --option-active-border: #7a017a; 
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-color);
+  transition: all 0.4s ease;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.logo-text {
+  font-family: 'Great Vibes', cursive;
+  font-size: 28px;
+  font-weight: normal;
+  color: var(--text-main);
+}
+
+
