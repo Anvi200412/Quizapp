@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { questions } from "../Data/Question"; 
+import { questions } from "../Data/Question";
 import "./QuizIntro.css";
 
 function QuizIntro() {
@@ -13,13 +13,14 @@ function QuizIntro() {
   const [score, setScore] = useState(0);
   const [timeSpent, setTimeSpent] = useState(0);
   const [isTimeout, setIsTimeout] = useState(false);
+  const [userAnswers, setUserAnswers] = useState([]);
 
   // Timer
   useEffect(() => {
     if (!startQuiz) return;
 
     if (timeLeft <= 0) {
-      setIsTimeout(true); 
+      setIsTimeout(true);
       return;
     }
 
@@ -37,27 +38,46 @@ function QuizIntro() {
   };
 
   const finishQuiz = () => {
-    if (selected !== null) setAttempted(prev => prev + 1);
-    if (selected !== null && selected === questions[currentQ].answer) {
-      setScore(prev => prev + 10);
-    }
     setTimeSpent(600 - timeLeft);
     setShowResult(true);
     setStartQuiz(false);
   };
 
   const handleNext = () => {
-    if (selected !== null) setAttempted(prev => prev + 1);
-    if (selected !== null && selected === questions[currentQ].answer) {
-      setScore(prev => prev + 10);
+    let questionScore = 0;
+    let isCorrect = false;
+
+    if (selected !== null) {
+
+      // ✅ Important Fix
+      if (Number(selected) === Number(questions[currentQ].answer)) {
+        questionScore = 10;
+        isCorrect = true;
+      }
+
+      setScore(prev => prev + questionScore);
+      setAttempted(prev => prev + 1);
     }
 
+    // Store answer for review
+    setUserAnswers(prev => [
+      ...prev,
+      {
+        question: questions[currentQ].question,
+        options: questions[currentQ].options,
+        selected,
+        correctAnswer: questions[currentQ].answer,
+        isCorrect,
+        score: questionScore
+      }
+    ]);
+
     if (currentQ < questions.length - 1) {
-      setCurrentQ(currentQ + 1);
+      setCurrentQ(prev => prev + 1);
       setSelected(null);
     } else if (skipped.length > 0) {
       setCurrentQ(skipped[0]);
-      setSkipped(skipped.slice(1));
+      setSkipped(prev => prev.slice(1));
       setSelected(null);
     } else {
       finishQuiz();
@@ -65,7 +85,7 @@ function QuizIntro() {
   };
 
   const handleSkip = () => {
-    setSkipped([...skipped, currentQ]);
+    setSkipped(prev => [...prev, currentQ]);
     handleNext();
   };
 
@@ -80,50 +100,97 @@ function QuizIntro() {
     setAttempted(0);
     setTimeSpent(0);
     setIsTimeout(false);
+    setUserAnswers([]);
   };
 
   return (
     <>
       {/* Intro Page */}
       {!startQuiz && !showResult && (
-        <div className="intro-wrapper">
-          <div className="card">
-            <div className="logo">
-              <div className="box">XQ</div>
-              <h2 className="logo-text">Xeven Quiz</h2>
-            </div>
+         <div className="intro-wrapper">
+           <div className="card">
+             <div className="logo">
+               <div className="box">XQ</div>
+               <h2 className="logo-text">Xeven Quiz</h2>
+             </div>
 
-            <h1 className="title">XEVEN QUIZ</h1>
+             <h1 className="title">XEVEN QUIZ</h1>
 
-            <div className="details">
-              <p>Selected Quiz Topic: <span>React</span></p>
-              <p>Total questions: <span>{questions.length}</span></p>
-              <p>Total time: <span>10 minutes</span></p>
-            </div>
+             <div className="details">
+               <p>Selected Quiz Topic: <span>React</span></p>
+               <p>Total questions: <span>{questions.length}</span></p>
+               <p>Total time: <span>10 minutes</span></p>
+             </div>
 
-            <p className="info">
-              You can skip questions. Skipped questions will appear at the end.
-            </p>
+             <p className="info">
+               You can skip questions. Skipped questions will appear at the end.
+             </p>
 
-            <button className="start-btn" onClick={() => setStartQuiz(true)}>
-              ▶ Start
-            </button>
-          </div>
-        </div>
-      )}
+             <button className="start-btn" onClick={() => setStartQuiz(true)}>
+               ▶ Start
+             </button>
+           </div>
+         </div>
+       )}
 
       {/* Result Page */}
       {showResult && (
         <div className="intro-wrapper">
           <div className="card">
             <h1 className="title">Quiz Result</h1>
+
             <div className="details">
               <p>You attempted: <span>{attempted} / {questions.length}</span></p>
               <p>Score: <span>{score} / {questions.length * 10}</span></p>
-              <p>Time Spent: <span>{Math.floor(timeSpent / 60)}m {timeSpent % 60}s</span></p>
+              <p>
+                Time Spent:{" "}
+                <span>
+                  {Math.floor(timeSpent / 60)}m {timeSpent % 60}s
+                </span>
+              </p>
               <p>Status: <span>{score >= 50 ? "Passed" : "Failed"}</span></p>
             </div>
-            <button className="start-btn" onClick={restartQuiz}>Restart Quiz</button>
+
+            <hr />
+
+            {/* Answer Review */}
+            <div className="review-section">
+              <h2>Answer Review</h2>
+
+              {userAnswers.map((q, index) => (
+                <div key={index} className="review-card">
+
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h4>{index + 1}. {q.question}</h4>
+                    <span style={{ color: q.isCorrect ? "green" : "red" }}>
+                      Score {q.score}
+                    </span>
+                  </div>
+
+                  {q.options.map((opt, i) => {
+                    let className = "";
+
+                    if (i === q.correctAnswer) {
+                      className = "correct";
+                    }
+
+                    if (i === q.selected && !q.isCorrect) {
+                      className = "wrong";
+                    }
+
+                    return (
+                      <div key={i} className={`review-option ${className}`}>
+                        {String.fromCharCode(65 + i)}. {opt}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+
+            <button className="start-btn" onClick={restartQuiz}>
+              Restart Quiz
+            </button>
           </div>
         </div>
       )}
@@ -131,17 +198,16 @@ function QuizIntro() {
       {/* Quiz Page */}
       {startQuiz && !showResult && (
         <div className="quiz-container">
-          <div className="logo">
-            <div className="box">XQ</div>
-            <h2>Xeven Quiz</h2>
-          </div>
-
           <div className="quiz-card">
+
             {!isTimeout ? (
               <>
                 <div className="question-header">
                   <h3>
-                    <span className="question-number">{String(currentQ + 1).padStart(2, "0")}</span>/
+                    <span className="question-number">
+                      {String(currentQ + 1).padStart(2, "0")}
+                    </span>
+                    /
                     <span className="total">{questions.length}</span>
                     <br />
                     {questions[currentQ].question}
@@ -169,9 +235,10 @@ function QuizIntro() {
             ) : (
               <div style={{ textAlign: "center", padding: "40px" }}>
                 <h2 style={{ color: "red" }}>⏰ Time Out!</h2>
-                <button className="show-result-btn" onClick={finishQuiz}>Show Result</button>
+                <button onClick={finishQuiz}>Show Result</button>
               </div>
             )}
+
           </div>
         </div>
       )}
@@ -180,3 +247,6 @@ function QuizIntro() {
 }
 
 export default QuizIntro;
+
+
+

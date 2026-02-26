@@ -1,4 +1,3 @@
-// src/data/questions.jsx
 export const questions = [
   {
     question: "What is React?",
@@ -41,9 +40,9 @@ export const questions = [
     answer: 1
   },
   {
-    question: "State in React is?",
-    options: ["Immutable", "Mutable", "Constant", "None"],
-    answer: 1
+    question: "React uses a virtual DOM to optimize rendering performance?",
+    options: ["True", "False"],
+    answer: 0
   },
   {
     question: "useState returns?",
